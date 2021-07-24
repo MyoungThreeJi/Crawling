@@ -1,6 +1,6 @@
 from selenium import webdriver
-import time
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup as bs
+import urllib.request
 import pandas as pd
 
 def toCSV(data):
@@ -34,8 +34,12 @@ for page in range(3,7): # TEST: 3페이지
     print(title.text)
 
     # 제품이미지
-    # image = driver.find_element_by_class_name("se_mediaImage __se_img_el")
-    # print(image.get_attribute('src'))
+    image=driver.find_element_by_class_name("se_mediaImage.__se_img_el")
+    print(image.get_attribute('src'))
+    url = image.get_attribute('src')
+    file_name=str(title.text)+'.jpg'
+    urllib.request.urlretrieve(url, file_name)
+
 
     # 테이블(성분명, 검출량, 부작용 정보)
     table = driver.find_element_by_class_name("se_table_col")
