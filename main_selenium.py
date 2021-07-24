@@ -21,7 +21,7 @@ while True:
         break
 
 searchList = []
-for page in range(3,7): # TEST: 3페이지
+for page in range(3,4): # TEST: 3페이지
     contentList = []
     driver.find_elements_by_class_name("spot_post_area")[page].click()
     # time.sleep(3)
@@ -32,28 +32,43 @@ for page in range(3,7): # TEST: 3페이지
     # 제목(제조사, 제품명)
     title = driver.find_element_by_class_name("se_textarea")
     print(title.text)
+    # 제조사
+    print(' '.join(title.text.split()[1:2]))
+    # 제품명
+    print(' '.join(title.text.split()[1:]))
 
     # 제품이미지
     image=driver.find_element_by_class_name("se_mediaImage.__se_img_el")
     print(image.get_attribute('src'))
     url = image.get_attribute('src')
-    file_name=str(title.text)+'.jpg'
+    file_name=str(' '.join(title.text.split()[1:]))+'.jpg'
     urllib.request.urlretrieve(url, file_name)
 
 
     # 테이블(성분명, 검출량, 부작용 정보)
     table = driver.find_element_by_class_name("se_table_col")
-    contentList.append(title.text)
+    contentList.append(' '.join(title.text.split()[1:]))
     for tr in table.find_elements_by_tag_name("tr"):
         singleList = []
         try:
             td = tr.find_elements_by_tag_name("td")
-            s = "{} , {} , {}\n".format(td[0].text, td[1].text, td[2].text)
-            print(s)
+            # s = "{} , {} , {}\n".format(td[0].text, td[1].text, td[2].text)
+            # print(s)
             # singleList.append(image.get_attribute('src'))
-            singleList.append(td[0].text) # 
+            if str(td[0].text)=='성분명':
+                continue
+            name=str(td[0].text)
+            KoName,EnName=name.split('\n')
+            print(KoName,EnName)
+            singleList.append(KoName)
+            singleList.append(EnName)
             singleList.append(td[1].text)
-            singleList.append(td[2].text)
+
+            effect=str(td[2].text)
+            effect=effect.replace('-','')
+            list=effect.split('\n')
+            singleList.append(list)
+            print(singleList)
             contentList.append(singleList)
         except:
             break
