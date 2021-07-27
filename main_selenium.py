@@ -2,6 +2,7 @@ from selenium import webdriver
 from bs4 import BeautifulSoup as bs
 import urllib.request
 import pandas as pd
+import time
 
 def toCSV(data):
     df = pd.DataFrame(data)
@@ -17,64 +18,66 @@ while True:
     try:
         plus = driver.find_element_by_css_selector("div.btn_paging_area")
         plus.click()
+        time.sleep(1)
     except:
         break
 
 searchList = []
-for page in range(3,4): # TEST: 3페이지
-    contentList = []
-    driver.find_elements_by_class_name("spot_post_area")[page].click()
-    # time.sleep(3)
+pages = len(driver.find_elements_by_class_name("spot_post_area"))
+for page in range(3,pages):
+    try:
+        singleRow = []
+        driver.find_elements_by_class_name("spot_post_area")[page].click()
 
 
-### 스크래핑 부분 ###
+    ### 스크래핑 부분 ###
 
-    # 제목(제조사, 제품명)
-    title = driver.find_element_by_class_name("se_textarea")
-    print(title.text)
-    # 제조사
-    print(' '.join(title.text.split()[1:2]))
-    # 제품명
-    print(' '.join(title.text.split()[1:]))
+        # 제목(제조사, 제품명)
+        title = driver.find_element_by_class_name("se_textarea")
+        # 제조사
+        manufacturer = ' '.join(title.text.split()[1:2])
+        # 제품명
+        name = ' '.join(title.text.split()[1:])
 
-    # 제품이미지
-    image=driver.find_element_by_class_name("se_mediaImage.__se_img_el")
-    print(image.get_attribute('src'))
-    url = image.get_attribute('src')
-    file_name=str(' '.join(title.text.split()[1:]))+'.jpg'
-    urllib.request.urlretrieve(url, file_name)
+        # 제품이미지
+        image=driver.find_element_by_class_name("se_mediaImage.__se_img_el").get_attribute('src')
+        file_name=str(' '.join(title.text.split()[1:]))+'.jpg'
+        urllib.request.urlretrieve(image, file_name)
+
+        # print(manufacturer, name, image)
 
 
-    # 테이블(성분명, 검출량, 부작용 정보)
-    table = driver.find_element_by_class_name("se_table_col")
-    contentList.append(' '.join(title.text.split()[1:]))
-    for tr in table.find_elements_by_tag_name("tr"):
-        singleList = []
-        try:
-            td = tr.find_elements_by_tag_name("td")
-            # s = "{} , {} , {}\n".format(td[0].text, td[1].text, td[2].text)
-            # print(s)
-            # singleList.append(image.get_attribute('src'))
-            if str(td[0].text)=='성분명':
-                continue
-            name=str(td[0].text)
-            KoName,EnName=name.split('\n')
-            print(KoName,EnName)
-            singleList.append(KoName)
-            singleList.append(EnName)
-            singleList.append(td[1].text)
+        # 테이블(성분명, 검출량, 부작용 정보)
+        table = driver.find_element_by_class_name("se_table_col")
+        singleRow.append(manufacturer)
+        singleRow.append(name)
+        singleRow.append(image)
+        for tr in table.find_elements_by_tag_name("tr"):
+            ingredientList = []
+            try:
+                td = tr.find_elements_by_tag_name("td")
+                if str(td[0].text)=='성분명':
+                    continue
+                KoName,EnName=str(td[0].text).split('\n')
+                mg = td[1].text
+                effect=str(td[2].text).replace('-','').split('\n')
 
-            effect=str(td[2].text)
-            effect=effect.replace('-','')
-            list=effect.split('\n')
-            singleList.append(list)
-            print(singleList)
-            contentList.append(singleList)
-        except:
-            break
+                ingredientList.append(KoName)
+                ingredientList.append(EnName)
+                ingredientList.append(mg)
+                ingredientList.append(effect)
+                # print(ingredientList)
+
+                singleRow.append(ingredientList)
+
+            except:
+                break
+
+        searchList.append(singleRow)
+        driver.back()
     
-
-    searchList.append(contentList)
-    driver.back()
+    except:
+        driver.back()
+        continue
 
 toCSV(searchList)
