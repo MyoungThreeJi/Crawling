@@ -25,8 +25,8 @@ while True:
 searchList = []
 id = 1
 pages = len(driver.find_elements_by_class_name("spot_post_area"))
-# for page in range(3,pages):
-for page in range(3,6):
+for page in range(3,pages):
+# for page in range(3,6):
     try:
         driver.find_elements_by_class_name("spot_post_area")[page].click()
 
@@ -40,7 +40,7 @@ for page in range(3,6):
                     continue
                 KoName,EnName=str(td[0].text).split('\n')
                 if (KoName.find('-')):
-                    KoName = KoName.split('-')[-1]
+                    KoName = str(KoName.split('-')[-1]).replace(')',"")
                 detection = td[1].text
                 effect=str(td[2].text).replace('-','').split('\n')
 
