@@ -6,7 +6,7 @@ import time
 
 def toCSV(data):
     df = pd.DataFrame(data)
-    df.columns = ["pad_id", "ingredient_id", "detection"] # 불규칙적인 행 개수
+    df.columns = ["pad_id", "ingredient_id", "detection"]
     df.to_csv("pad_ingredient.csv", index=False, mode='w', header=True)
 
 
@@ -30,28 +30,6 @@ for page in range(3,6):
     try:
         driver.find_elements_by_class_name("spot_post_area")[page].click()
 
-
-    ### 스크래핑 부분 ###
-
-        # # 제목(제조사, 제품명)
-        # title = driver.find_element_by_class_name("se_textarea")
-        # # 제조사
-        # manufacturer = ' '.join(title.text.split()[1:2])
-        # # 제품명
-        # name = ' '.join(title.text.split()[1:])
-
-        # # 제품이미지
-        # image=driver.find_element_by_class_name("se_mediaImage.__se_img_el").get_attribute('src')
-        # file_name=str(' '.join(title.text.split()[1:]))+'.jpg'
-        # urllib.request.urlretrieve(image, file_name)
-
-        # print(manufacturer, name, image)
-
-        # singleRow.append(manufacturer)
-        # singleRow.append(name)
-        # singleRow.append(image)
-
-
         # 테이블(성분명, 검출량, 부작용 정보)
         table = driver.find_element_by_class_name("se_table_col")
         for tr in table.find_elements_by_tag_name("tr"):
@@ -61,6 +39,8 @@ for page in range(3,6):
                 if str(td[0].text)=='성분명':
                     continue
                 KoName,EnName=str(td[0].text).split('\n')
+                if (KoName.find('-')):
+                    KoName = KoName.split('-')[-1]
                 detection = td[1].text
                 effect=str(td[2].text).replace('-','').split('\n')
 
