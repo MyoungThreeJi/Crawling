@@ -24,8 +24,10 @@ for tr in table.find_elements_by_tag_name("tr"):
         if str(td[0].text)=='성분명':
             continue
         name = td[0].text
-        if (name.find('-')): #  != -1
-            name = name.split('-')[-1]
+        if name.find('-'):
+            if name.split('-')[-1] == '피넨':
+                name = '-'.join(name.split('-')[-2:])
+            else: name = name.split('-')[-1]
         avg = td[1].text
         max = td[2].text
         min = td[3].text
@@ -39,8 +41,10 @@ for tr in table.find_elements_by_tag_name("tr"):
 
         singleRow = []
         name2 = td[4].text
-        if (name2.find('-')):
-            name2 = name2.split('-')[-1]
+        if name2.find('-'):
+            if name2.split('-')[-1] == '피넨':
+                name2 = '-'.join(name2.split('-')[-2:])
+            else: name2 = name2.split('-')[-1]
         avg2 = td[5].text
         max2 = td[6].text
         min2 = td[7].text

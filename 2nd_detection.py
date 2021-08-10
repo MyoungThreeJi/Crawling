@@ -26,7 +26,6 @@ searchList = []
 id = 1
 pages = len(driver.find_elements_by_class_name("spot_post_area"))
 for page in range(3,pages):
-# for page in range(3,6):
     try:
         driver.find_elements_by_class_name("spot_post_area")[page].click()
 
@@ -39,10 +38,12 @@ for page in range(3,pages):
                 if str(td[0].text)=='성분명':
                     continue
                 KoName,EnName=str(td[0].text).split('\n')
-                if (KoName.find('-')):
-                    KoName = str(KoName.split('-')[-1]).replace(')',"")
+                if KoName.find('-'):
+                    if KoName.split('-')[-1] == '피넨':
+                        KoName = '-'.join(KoName.split('-')[-2:])
+                    else: KoName = KoName.split('-')[-1].replace(')',"")
                 detection = td[1].text
-                effect=str(td[2].text).replace('-','').split('\n')
+                # effect=str(td[2].text).replace('-','').split('\n')
 
                 singleRow.append(id)
                 singleRow.append(KoName)
